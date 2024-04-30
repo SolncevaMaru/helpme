@@ -64,7 +64,7 @@ function App() {
         const my_bool = checkedItems[index];
         setState({ checkedItems });
         }
-
+        //
         // useEffect(() => {
         //     localStorage.setItem("state", JSON.stringify(stateChecked));
         // }, [stateChecked]);
