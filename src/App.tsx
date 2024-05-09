@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Input from './components/Input'
-import Button from './components/Button'
+import MyButton from './components/Button'
 import {TaskTodo} from './components/TaskTodo'
 
 import Form from "react-bootstrap/Form";
@@ -15,8 +15,12 @@ import styles from './components/todopanel.module.css'
 import styles2 from './App.module.css';
 import styles3 from './components/button.module.css'
 
+import {Carousel, CarouselProps} from "antd";
 
 import './App.module.css';
+//@ts-ignore
+import styled from 'styled-components';
+
 
 function App() {
   const[text,setText] = useState('');
@@ -27,6 +31,20 @@ function App() {
   });
 
 
+
+
+  const CarouselWrapper = styled(Carousel)`
+    > .slick-dots li button {
+     width: 20px;
+     height: 4px;
+      background: #888585;
+   }
+   > .slick-dots li.slick-active button {
+     width: 20px;
+     height: 4px;
+     background: #888585;
+   }
+`;
 
   // @ts-ignore
   const handleTextChange = (e) => {
@@ -99,14 +117,28 @@ function App() {
         localStorage.removeItem(id)
     }
 
+
     // @ts-ignore
-    const taskTodoList = todos.map(({id, chstatus, value,deadline,isdeadline})  => <TaskTodo id={id}
+    let copiTasks = todos.filter(e => e.chstatus === false);
+    // @ts-ignore
+    let done_copiTasks = todos.filter(e => e.chstatus === true);
+
+    // @ts-ignore
+    const taskTodoList = done_copiTasks.map(({id, chstatus, value,deadline,isdeadline})  => <TaskTodo id={id}
                                                                        value={value}
                                                                        chstatus={chstatus}
                                                                        toggleTask={toggleTask}
                                                                        deadline={deadline}
                                                                        isdeadline={isdeadline}
                                                                      deleteTask ={deleteTask}/>);
+
+    const taskTodoList2 = copiTasks.map(({id, chstatus, value,deadline,isdeadline})  => <TaskTodo id={id}
+                                                                                                 value={value}
+                                                                                                 chstatus={chstatus}
+                                                                                                 toggleTask={toggleTask}
+                                                                                                 deadline={deadline}
+                                                                                                 isdeadline={isdeadline}
+                                                                                                 deleteTask ={deleteTask}/>);
 
 
     useEffect(() => {
@@ -117,48 +149,58 @@ function App() {
     const my_className = `${styles3.button} ${styles3[`button_${color}`]}`;
 
 
+    type DotPosition = CarouselProps['dotPosition'];
+
+    const [dotPosition, setDotPosition] = useState<DotPosition>('top');
+
     return (
-      <div className={styles2.app_container}>
-        <div className={styles2.container}>
+        <div className={styles2.app_container}>
+            <div className={styles2.container}>
+                <div className={styles.todo_panel_container}>
 
-          <div className={styles.todo_panel_container}>
+                    <div className={styles.fields_container}>
+                        <div className={styles.field_container}>
+                            <label>
+                                <Input value={text} onChange={handleTextChange}/>
+                            </label>
+                        </div>
+                    </div>
 
-            <div className={styles.fields_container}>
-              <div className={styles.field_container}>
-                <label>
-                  <Input value={text} onChange={handleTextChange}/>
-                </label>
-              </div>
+                    <Form.Check type="checkbox" >
+                        <FormCheck.Input type="checkbox" onChange={changeCheckbox} checked={checked} />
+                        <FormCheck.Label style={styles}>{"Дедлайн"}</FormCheck.Label>
+                    </Form.Check>
+
+                    {checked &&<div className={styles.fields_container}>
+                        <div className={styles.field_container}>
+                            <label htmlFor='name'>
+                                <DatePicker selected={startDate}
+                                            onChange={(date:Date) => setStartDate(date)}
+                                            dateFormat="dd.MM.yyyy"
+                                            minDate={new Date()}
+                                            calendarStartDay={1}
+                                            todayButton="Сегодня"/>
+                            </label>
+                        </div>
+                    </div>}
+                    <div className={styles.button_container}>
+                        <MyButton className={my_className} onClick={addTask}/>
+                    </div>
+                </div>
+                <CarouselWrapper dotPosition={dotPosition} >
+                    <div>
+                        {taskTodoList}
+                    </div>
+                    <div >
+                        {taskTodoList2}
+                    </div>
+
+                </CarouselWrapper>
+
+
+
             </div>
-
-              <Form.Check type="checkbox" >
-                  <FormCheck.Input type="checkbox" onChange={changeCheckbox} checked={checked} />
-                  <FormCheck.Label style={styles}>{"Дедлайн"}</FormCheck.Label>
-              </Form.Check>
-
-            {checked &&<div className={styles.fields_container}>
-              <div className={styles.field_container}>
-                <label htmlFor='name'>
-                  <DatePicker selected={startDate}
-                              onChange={(date:Date) => setStartDate(date)}
-                              dateFormat="dd.MM.yyyy"
-                              minDate={new Date()}
-                              calendarStartDay={1}
-                              todayButton="Сегодня"/>
-                </label>
-              </div>
-            </div>}
-
-            <div className={styles.button_container}>
-              <Button className={my_className} onClick={addTask}/>
-            </div>
-          </div>
-
-            {taskTodoList}
-
         </div>
-      </div>
-
   );
 }
 

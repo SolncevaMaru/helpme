@@ -1,7 +1,7 @@
 import React from "react";
 
 
-function Button (props){
+function MyButton (props){
     return(
 
         <button className={props.className} onClick={props.onClick}>Сохранить</button>
@@ -9,4 +9,4 @@ function Button (props){
     )
 }
 
-export default Button;
+export default MyButton;
