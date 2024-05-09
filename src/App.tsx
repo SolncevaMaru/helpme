@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Input from './components/Input'
 import Button from './components/Button'
+import {TaskTodo} from './components/TaskTodo'
 
 import Form from "react-bootstrap/Form";
 import FormCheck from "react-bootstrap/FormCheck";
@@ -13,22 +14,18 @@ import FormCheck from "react-bootstrap/FormCheck";
 import styles from './components/todopanel.module.css'
 import styles2 from './App.module.css';
 import styles3 from './components/button.module.css'
-import styles4 from './components/todolist.module.css'
 
 
 import './App.module.css';
 
 function App() {
   const[text,setText] = useState('');
+    // @ts-ignore
+    const initState:[] = JSON.parse(localStorage.getItem("todos"));
   const[todos,setTodos] = useState(() => {
-      // @ts-ignore
-      return JSON.parse(localStorage.getItem("todos")) || []
+      return initState || []
   });
-    const [stateChecked, setStateChecked] = useState(() => {
-        // @ts-ignore
-        return JSON.parse(localStorage.getItem("state")) || []
-    });
-    // const[todos,setTodos] = useState([]);
+
 
 
   // @ts-ignore
@@ -45,63 +42,82 @@ function App() {
 
   const [startDate, setStartDate] = useState(new Date());
 
+    const addTask = () => {
+        if (text.trim() !== '') {
+            if(!checked)
+            {
+                const taskTodo={
+                    id: Math.random(),
+                    value:text,
+                    chstatus:false,
+                    deadline: null,
+                    isdeadline:false
+                }
+                let newTask =[...todos,taskTodo];
+                // @ts-ignore
+                setTodos(newTask);
+                setText('');
+                localStorage.setItem("todos", JSON.stringify(todos));
+            }
+            else
+            {
+                const taskTodo={
+                    id: Math.random(),
+                    value:text,
+                    chstatus:false,
+                    deadline: startDate.toLocaleDateString(),
+                    isdeadline:true
+                }
+                let newTask =[...todos,taskTodo];
+                // @ts-ignore
+                setTodos(newTask);
+                setText('');
+                localStorage.setItem("todos", JSON.stringify(todos));
+            }
+
+        }
+    };
 
     // @ts-ignore
-    const FormCheckBox = ({ item,index }) => {
-
-        const [state, setState] = useState({ checkedItems: [] });
-
-
+    const toggleTask = id => {
         // @ts-ignore
-        const handleClick = index => {
-        const checkedItems = [...state.checkedItems];
-
+        const toggle = todos.map(e => e.id === id ? {...e, chstatus : !e.chstatus} : {...e});
         // @ts-ignore
-        checkedItems[index] = !checkedItems[index];
+        setTodos(toggle);
+        // @ts-ignore
+        localStorage.setItem("todos", JSON.stringify(toggle));
 
-        stateChecked[index] =checkedItems[index];
-        localStorage.setItem("state", JSON.stringify(stateChecked));
-        const my_bool = checkedItems[index];
-        setState({ checkedItems });
-        }
-        //
-        // useEffect(() => {
-        //     localStorage.setItem("state", JSON.stringify(stateChecked));
-        // }, [stateChecked]);
-
-            return (
-            <Form.Check type="checkbox" id={item} >
-                <FormCheck.Input type="checkbox" onChange={() => handleClick(index)}/>
-                <FormCheck.Label>{item}</FormCheck.Label>
-            </Form.Check>
-        );
 
     };
 
+    // @ts-ignore
+    const deleteTask = id => {
+        // @ts-ignore
+        const del = todos.filter(e=> e.id !== id)
+        // @ts-ignore
+        setTodos(del);
+        localStorage.removeItem(id)
+    }
 
-    const handleButtonClick = () => {
-        if (text.trim() !== '') {
-            // @ts-ignore
-            setTodos([...todos, text]);
-            // @ts-ignore
-            setStateChecked([...stateChecked,false]);
-            setText('');
-        }
-    };
+    // @ts-ignore
+    const taskTodoList = todos.map(({id, chstatus, value,deadline,isdeadline})  => <TaskTodo id={id}
+                                                                       value={value}
+                                                                       chstatus={chstatus}
+                                                                       toggleTask={toggleTask}
+                                                                       deadline={deadline}
+                                                                       isdeadline={isdeadline}
+                                                                     deleteTask ={deleteTask}/>);
 
 
     useEffect(() => {
         localStorage.setItem("todos", JSON.stringify(todos));
     }, [todos]);
 
-    useEffect(() => {
-        localStorage.setItem("state", JSON.stringify(stateChecked));
-    }, [stateChecked]);
+    const color = 'blue';
+    const my_className = `${styles3.button} ${styles3[`button_${color}`]}`;
 
 
-
-
-  return (
+    return (
       <div className={styles2.app_container}>
         <div className={styles2.container}>
 
@@ -134,16 +150,11 @@ function App() {
             </div>}
 
             <div className={styles.button_container}>
-              <Button className={styles3.button} onClick={handleButtonClick}/>
+              <Button className={my_className} onClick={addTask}/>
             </div>
           </div>
 
-              {todos.map((todo: any, index: React.Key | null | undefined) => (
-                  <div className={styles4.todo_item_container}>
-                      <FormCheckBox key ={index} item={todo} index={index}/>
-                  </div>
-
-              ))}
+            {taskTodoList}
 
         </div>
       </div>
