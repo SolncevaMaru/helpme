@@ -27,7 +27,7 @@ const color = 'blue';
                         </div>
                         { props.isdeadline &&<div>
                             <FormCheck.Label>
-                                {props.deadline}
+                                Дедлай: {props.deadline}
                             </FormCheck.Label>
                         </div>}
                     </Form.Check>
